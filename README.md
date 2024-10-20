@@ -1,81 +1,115 @@
-# Sublink Worker
+# Pastebin-worker
 
-Sublink Worker 是一个可部署在 Cloudflare Worker 上，小而美的订阅转换工具。可以将各种代理协议的分享 URL 转换为不同客户端可用的订阅链接。同时还提供灵活的自定义规则与API支持。
+This is a pastebin that can be deployed on Cloudflare workers. Try it on [shz.al](https://shz.al). 
 
-演示站点：[https://sublink-worker.sageer.me](https://sublink-worker.sageer.me)
-## 功能特点
+**Philosophy**: effortless deployment, friendly CLI usage, rich functionality. 
 
-- 支持协议：ShadowSocks, VMess, VLESS, Hysteria2, Trojan, TUIC
-- 支持导入 Base64 的 http/https 订阅链接
-- 一键部署，Vanilla JS + Cloudflare Worker，无需后端
-- 支持客户端：
-  - Sing-Box
-  - Clash
-  - Xray/V2Ray
-- 支持固定/随机短链接生成（基于 KV）
-- 浅色/深色主题切换
-- 灵活的 API，支持脚本化操作
-- 用户友好的 Web 界面，灵活的自定义规则
-  - 提供多种预定义规则集
-  - 可自建关于geo-site, geo-ip, ip-cidr和domain-suffix的自定义策略组
+**Features**:
 
-## 部署
+1. Share your paste with as short as 4 characters
+2. Customize the paste URL
+4. **Update** and **delete** your paste as you want
+5. **Expire** your paste after a period of time
+6. **Syntax highlighting** powered by PrismJS
+7. Display **markdown** file as HTML
+8. Used as a URL shortener
+9. Customize returned mimetype
 
-### 快速部署 
-[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/7Sageer/sublink-worker)
+## Usage
 
-### 手动部署
-- 克隆项目仓库：`git clone https://github.com/7Sageer/sublink-worker.git`
-- 安装依赖：`npm install`
-- 配置 Cloudflare 账户凭证
-- 使用 Wrangler 部署：`wrangler deploy`
+1. You can post, update, delete your paste directly on the website (such as [shz.al](https://shz.al)). 
 
-## API 文档
+2. It also provides a convenient HTTP API to use. See [API reference](doc/api.md) for details. You can easily call API via command line (using `curl` or similar tools). 
 
-详细的 API 文档可以在 [API-doc.md](/doc/API-doc.md) 中找到。
+3. [pb](/scripts) is a bash script to make it easier to use on command line.
 
-主要端点包括：
+## Limitations
 
-- `/singbox`：生成 Sing-Box 配置
-- `/clash`：生成 Clash 配置
-- `/xray`：生成 Xray 配置
-- `/shorten`：生成短链接
+1. If deployed on Cloudflare Worker free-tier plan, the service allows at most 100,000 reads and 1000 writes, 1000 deletes per day. 
+2. Due to the size limit of Cloudflare KV storage, the size of each paste is bounded under 25 MB. 
 
-## 最近更新
+## Deploy
 
-- 2024-10-3
-  - 现在可以保存并管理自定义短链接
+You are free to deploy the pastebin on your own domain if you host your domain on Cloudflare. 
 
-[查看更新日志](/doc/update-log.md)
+1. Install `node` and `yarn`.
 
-## 项目结构
+2. Create a KV namespace on Cloudflare workers dashboard, remember its ID.
 
-```
-.
-├── index.js                 # 主要的服务器逻辑，处理请求路由
-├── BaseConfigBuilder.js     # 构建基础配置
-├── SingboxConfigBuilder.js  # 构建 Sing-Box 配置
-├── ClashConfigBuilder.js    # 构建 Clash 配置
-├── ProxyParsers.js          # 解析各种代理协议的 URL
-├── utils.js                 # 提供各种实用函数
-├── htmlBuilder.js           # 生成 Web 界面的 HTML
-└── config.js                # 保存配置信息
+3. Clone the repository and enter the directory.
+
+4. Modify entries in `wrangler.toml`. Its comments will tell you how.
+
+5. Login to Cloudflare and deploy with the following steps:
+
+```console
+$ yarn install
+$ yarn wrangler login
+$ yarn deploy
 ```
 
-## 贡献
+6. Enjoy!
 
-欢迎提交 Issues 和 Pull Requests 来改进这个项目。
+## Auth
 
-## 许可证
+If you want a private deployment (only you can upload paste, but everyone can read the paste), add the following entry to your `wrangler.toml`.
 
-这个项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情。
+```toml
+[vars.BASIC_AUTH]
+user1 = "passwd1"
+user2 = "passwd2"
+```
 
-## 免责声明
+Now every access to POST request, and every access to static pages, requires an HTTP basic auth with the user-password pair listed above. For example:
 
-本项目仅供学习交流使用，请勿用于非法用途。使用本项目所造成的一切后果由使用者自行承担，与开发者无关。
+```console
+$ curl example-pb.com
+HTTP basic auth is required
 
-## Star History
+$ curl -Fc=@/path/to/file example-pb.com
+HTTP basic auth is required
 
-感谢所有为本项目点亮 Star 的朋友们！🌟
+$ curl -u admin1:wrong-passwd -Fc=@/path/to/file example-pb.com
+Error 401: incorrect passwd for basic auth
 
-[![Star History Chart](https://api.star-history.com/svg?repos=7Sageer/sublink-worker&type=Date)](https://star-history.com/#7Sageer/sublink-worker&Date)
+$ curl -u admin1:this-is-passwd-1 -Fc=@/path/to/file example-pb.com
+{
+  "url": "https://example-pb.com/YCDX",
+  "suggestUrl": null,
+  "admin": "https://example-pb.com/YCDX:Sij23HwbMjeZwKznY3K5trG8",
+  "isPrivate": false
+}
+```
+
+## Administration
+Delete a paste:
+```console
+$ yarn delete-paste <name-of-paste>
+```
+
+List pastes:
+```console
+$ yarn wrangler kv:key list --binding PB > kv_list.json
+```
+
+## Development
+
+Run a local simulator:
+```console
+$ yarn dev
+```
+
+Run tests:
+```console
+$ yarn test
+```
+
+Run tests with coverage report:
+```console
+$ yarn coverage
+```
+
+
+```js
+https://github.com/7Sageer/sublink-worker
+```
