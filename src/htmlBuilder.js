@@ -52,6 +52,8 @@ const generateStyles = () => `
     --dropdown-hover-text: #495057;
     --switch-bg: #e9ecef;
     --switch-checked-bg: #6a11cb;
+    --transition-speed: 0.3s;
+    --transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   [data-theme="dark"] {
@@ -83,7 +85,7 @@ const generateStyles = () => `
     background-color: var(--bg-color);
     color: var(--text-color);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition: background-color 0.3s var(--transition-timing), color 0.3s var(--transition-timing);
   }
 
   .card {
@@ -170,6 +172,11 @@ const generateStyles = () => `
   h2, h4 {
     color: var(--text-color);
     font-weight: 600;
+  }
+
+  h5 {
+    color: var(--text-color);
+    font-weight: 500;
   }
 
   .form-label {
@@ -346,17 +353,18 @@ const generateStyles = () => `
 
   #advancedOptions {
     max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.5s ease-out, opacity 0.5s ease-out, transform 0.5s ease-out;
     opacity: 0;
-    transform: translateY(-10px);
+    overflow: hidden;
+    transform: translateY(-20px);
+    transition: max-height 0.5s var(--transition-timing),
+                opacity 0.3s var(--transition-timing),
+                transform 0.3s var(--transition-timing);
   }
 
   #advancedOptions.show {
-    max-height: none;
+    max-height: 2000px;
     opacity: 1;
     transform: translateY(0);
-    transition: max-height 0.5s ease-in, opacity 0.5s ease-in, transform 0.5s ease-in;
   }
 
   .header-container {
@@ -381,7 +389,8 @@ const generateStyles = () => `
     align-items: center;
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
+    transition: opacity 0.3s var(--transition-timing),
+                visibility 0.3s var(--transition-timing);
     z-index: 1000;
   }
 
@@ -396,12 +405,12 @@ const generateStyles = () => `
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     text-align: center;
-    transform: scale(0.9);
-    transition: transform 0.3s ease;
+    transform: scale(0.9) translateY(20px);
+    transition: transform 0.3s var(--transition-timing);
   }
 
   .qr-modal.show .qr-card {
-    transform: scale(1);
+    transform: scale(1) translateY(0);
   }
 
   .qr-card img {
@@ -427,14 +436,17 @@ const generateStyles = () => `
 
   #subscribeLinksContainer {
     max-height: 0;
-    overflow: hidden;
     opacity: 0;
-    transition: max-height 0.5s ease-out, opacity 0.5s ease-out;
+    transform: translateY(20px);
+    transition: max-height 0.5s var(--transition-timing),
+                opacity 0.3s var(--transition-timing),
+                transform 0.3s var(--transition-timing);
   }
 
   #subscribeLinksContainer.show {
     max-height: 1000px;
     opacity: 1;
+    transform: translateY(0);
   }
 
   #subscribeLinksContainer.hide {
@@ -475,6 +487,147 @@ const generateStyles = () => `
   .dropdown-item:focus {
     background-color: var(--dropdown-hover-bg);
     color: var(--dropdown-hover-text);
+  }
+
+  /* 通用过渡效果 */
+  .card,
+  .btn,
+  .form-control,
+  .form-select,
+  .input-group,
+  .tooltip-content,
+  .github-link,
+  .qr-modal,
+  .qr-card {
+    transition: all var(--transition-speed) var(--transition-timing);
+  }
+
+  /* 高级选项展开/收起动画 */
+  #advancedOptions {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transform: translateY(-20px);
+    transition: max-height 0.5s var(--transition-timing),
+                opacity 0.3s var(--transition-timing),
+                transform 0.3s var(--transition-timing);
+  }
+
+  #advancedOptions.show {
+    max-height: 2000px;
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* 订阅链接容器动画 */
+  #subscribeLinksContainer {
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: max-height 0.5s var(--transition-timing),
+                opacity 0.3s var(--transition-timing),
+                transform 0.3s var(--transition-timing);
+  }
+
+  #subscribeLinksContainer.show {
+    max-height: 1000px;
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* 按钮悬停动画 */
+  .btn {
+    transform: translateY(0);
+  }
+
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  /* 复制按钮成功动画 */
+  @keyframes successPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+  }
+
+  .btn-success {
+    animation: successPulse 0.3s var(--transition-timing);
+  }
+
+  /* QR码模态框动画 */
+  .qr-modal {
+    opacity: 0;
+    visibility: hidden;
+    backdrop-filter: blur(5px);
+    transition: opacity 0.3s var(--transition-timing),
+                visibility 0.3s var(--transition-timing);
+  }
+
+  .qr-modal.show {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .qr-card {
+    transform: scale(0.9) translateY(20px);
+    transition: transform 0.3s var(--transition-timing);
+  }
+
+  .qr-modal.show .qr-card {
+    transform: scale(1) translateY(0);
+  }
+
+  /* 自定义规则添加/删除动画 */
+  .custom-rule {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: slideIn 0.3s var(--transition-timing) forwards;
+  }
+
+  .custom-rule.removing {
+    animation: slideOut 0.3s var(--transition-timing) forwards;
+  }
+
+  @keyframes slideIn {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideOut {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+  }
+
+  /* 暗色模式切换动画 */
+  body {
+    transition: background-color 0.3s var(--transition-timing),
+                color 0.3s var(--transition-timing);
+  }
+
+  /* 工具提示动画 */
+  .tooltip-content {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: opacity 0.3s var(--transition-timing),
+                visibility 0.3s var(--transition-timing),
+                transform 0.3s var(--transition-timing);
+  }
+
+  .tooltip-icon:hover .tooltip-content {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
   }
 `;
 
@@ -532,13 +685,12 @@ const generateForm = () => `
 
     <div id="advancedOptions">
       <div class="form-section">
-        <div class="form-section-title">Rule Configuration</div>
         ${generateRuleSetSelection()}
       </div>
 
       <div class="form-section">
         <div class="form-section-title d-flex align-items-center">
-          Base Config Settings(Experimental)
+          Base Config Settings(Optional)
           <span class="tooltip-icon ms-2">
             <i class="fas fa-question-circle"></i>
             <span class="tooltip-content">
@@ -547,14 +699,12 @@ const generateForm = () => `
           </span>
         </div>
         <div class="mb-3">
-          <label for="configType" class="form-label">Config Type:</label>
           <select class="form-select" id="configType">
             <option value="singbox">SingBox (JSON)</option>
             <option value="clash">Clash (YAML)</option>
           </select>
         </div>
         <div class="mb-3">
-          <label for="configEditor" class="form-label">Custom Base Config:</label>
           <textarea class="form-control" id="configEditor" rows="3" placeholder="Paste your custom config here..."></textarea>
         </div>
         <div class="d-flex gap-2">
@@ -721,6 +871,8 @@ const copyToClipboardFunction = () => `
 `;
 
 const shortenAllUrlsFunction = () => `
+  let isShortening = false; // Add flag to track shortening status
+
   async function shortenUrl(url, customShortCode) {
     saveCustomPath();
     const response = await fetch(\`/shorten-v2?url=\${encodeURIComponent(url)}&shortCode=\${encodeURIComponent(customShortCode || '')}\`);
@@ -732,17 +884,31 @@ const shortenAllUrlsFunction = () => `
   }
 
   async function shortenAllUrls() {
-    const shortenButton = document.querySelector('button[onclick="shortenAllUrls()"]');
-    shortenButton.disabled = true;
-    shortenButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Shortening...';
+    // Prevent multiple clicks
+    if (isShortening) {
+      return;
+    }
 
+    const shortenButton = document.querySelector('button[onclick="shortenAllUrls()"]');
+    
     try {
-      const xrayLink = document.getElementById('xrayLink');
+      isShortening = true;
+      shortenButton.disabled = true;
+      shortenButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Shortening...';
+
       const singboxLink = document.getElementById('singboxLink');
-      const clashLink = document.getElementById('clashLink');
       const customShortCode = document.getElementById('customShortCode').value;
 
+      // Check if links are already shortened
+      if (singboxLink.value.includes('/b/')) {
+        alert('Links are already shortened!');
+        return;
+      }
+
       const shortCode = await shortenUrl(singboxLink.value, customShortCode);
+
+      const xrayLink = document.getElementById('xrayLink');
+      const clashLink = document.getElementById('clashLink');
 
       xrayLink.value = window.location.origin + '/x/' + shortCode;
       singboxLink.value = window.location.origin + '/b/' + shortCode;
@@ -751,6 +917,7 @@ const shortenAllUrlsFunction = () => `
       console.error('Error:', error);
       alert('Failed to shorten URLs. Please try again.');
     } finally {
+      isShortening = false;
       shortenButton.disabled = false;
       shortenButton.innerHTML = '<i class="fas fa-compress-alt me-2"></i>Shorten Links';
     }
@@ -803,7 +970,6 @@ const generateRuleSetSelection = () => `
     </div>
 
     <div class="content-container mb-3">
-      <label for="predefinedRules" class="form-label">Rule Sets:</label>
       <select class="form-select" id="predefinedRules" onchange="applyPredefinedRules()">
         <option value="custom">Custom</option>
         <option value="minimal">Minimal</option>
@@ -822,7 +988,7 @@ const generateRuleSetSelection = () => `
       `).join('')}
     </div>
     <div class="mt-4">
-      <h4>Custom Rules</h4>
+      <h5>Custom Rules</h5>
       <div class="form-check form-switch mb-3">
         <input class="form-check-input" type="checkbox" id="crpinToggle">
         <label class="form-check-label" for="crpinToggle">Pin Custom Rules</label>
@@ -1086,8 +1252,11 @@ const customRuleFunctions = `
   function removeCustomRule(button) {
     const ruleDiv = button.closest('.custom-rule');
     if (ruleDiv) {
-      ruleDiv.remove();
-      customRuleCount--;
+      ruleDiv.classList.add('removing');
+      ruleDiv.addEventListener('animationend', () => {
+        ruleDiv.remove();
+        customRuleCount--;
+      }, { once: true });
     }
   }
 `;
